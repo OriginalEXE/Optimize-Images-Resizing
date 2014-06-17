@@ -60,7 +60,7 @@ jQuery( function( $ ) {
 				} else {
 
 					$message
-						.html( 'Something went wrong, please try again or contact the developer!' )
+						.html( oir_plugin.l10n.something_wrong )
 						.show();
 
 				}
