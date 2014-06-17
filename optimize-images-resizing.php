@@ -30,7 +30,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 				self::$instance->include_files();
 
 				// load textdomain
-				add_action( 'plugins_loaded', array( 'OIR_Init', 'load_textdomain' ) );
+				add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
 			}
 
@@ -91,7 +91,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 
 			$lang_dir = trailingslashit( apply_filters( 'oir_textdomain_location', $lang_dir ) );
 
-			load_plugin_textdomain( 'oir', false, $lang_dir );	
+			load_plugin_textdomain( 'oir_plugin', false, $lang_dir );	
 
 		}
 
