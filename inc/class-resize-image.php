@@ -19,7 +19,6 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 				self::$instance = new OIR_Resize_Image();
 
 				add_filter( 'image_downsize', array( self::$instance, 'image_downsize' ), 10, 3 );
-				add_filter( 'intermediate_image_sizes_advanced', array( self::$instance, 'hide_intermediate_image_sizes' ) );
 
 			}
 
@@ -58,7 +57,7 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
 			}
 
-			if ( 0 && $intermediate = image_get_intermediate_size( $id, $size ) ) {
+			if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
 
 				return false;
 
@@ -100,13 +99,6 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 			}
 
 			return false;
-
-		}
-
-		// return empty array to prevent resizing on upload, but still provide a way for developers to get around it
-		public function hide_intermediate_image_sizes( $sizes ) {
-
-			return apply_filters( 'oir_hide_intermediate_image_sizes', array(), $sizes );
 
 		}
 

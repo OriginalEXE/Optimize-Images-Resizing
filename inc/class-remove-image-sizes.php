@@ -22,6 +22,10 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 				add_action( 'wp_ajax_oir_remove_image_sizes', array( self::$instance, 'remove_image_sizes' ) );
 				add_action( 'admin_enqueue_scripts', array( self::$instance, 'enqueue_assets' ) );
 
+				// Upon image upload, clean up all but the original file and thumbnail
+				add_action( 'added_post_meta', array( self::$instance, 'add_post_meta_filters' ), 10, 3 );
+
+
 			}
 
 			return self::$instance;
@@ -45,20 +49,34 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 		}
 
 		// cleans up extra image sizes when called via ajax
-		public function remove_image_sizes() {
-
-			check_ajax_referer( 'oir-nonce', 'nonce' );
+		public function remove_image_sizes( $__attachment_id ) {
 
 			$paged = ! empty( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
 
-			$args = array(
-				'fields'         => 'ids',
-				'paged'          => $paged,
-				'post_mime_type' => 'image',
-				'post_status'    => 'any',
-				'post_type'      => 'attachment',
-				'posts_per_page' => 10,
-			);
+			if ( ! $__attachment_id ) {
+
+				check_ajax_referer( 'oir-nonce', 'nonce' );
+
+				$args = array(
+					'fields'         => 'ids',
+					'paged'          => $paged,
+					'post_mime_type' => 'image',
+					'post_status'    => 'any',
+					'post_type'      => 'attachment',
+					'posts_per_page' => 10,
+				);
+
+			} else {
+
+				$args = array(
+					'fields'         => 'ids',
+					'post_mime_type' => 'image',
+					'post_status'    => 'any',
+					'post_type'      => 'attachment',
+					'post__in'       => array( absint( $__attachment_id ) ),
+				);
+
+			}
 
 			$query = new WP_Query( $args );
 
@@ -72,6 +90,7 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 				foreach ( $query->posts as $attachment_id ) {
 
 					$meta = wp_get_attachment_metadata( $attachment_id );
+
 					$file_path = str_replace( basename( $meta['file'] ), '', trailingslashit( $upload_dir['basedir'] ) . $meta['file'] );
 
 					if ( empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
@@ -83,7 +102,7 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 					foreach ( $meta['sizes'] as $size => $params ) {
 
 						// we don't want to delete thumbnails, they are used in admin area
-						if ( 'thumbnail' === $size ) {
+						if ( 'thumbnail' === $size || 'medium' === $size || 'large' === $size ) {
 
 							continue;
 
@@ -107,14 +126,18 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 			}
 
-			$response = array(
-				'finished' => $finished,
-				'found'    => $found,
-				'paged'    => $paged,
-				'success'  => true,
-			);
+			if ( ! $__attachment_id ) {
 
-			wp_send_json( $response );
+				$response = array(
+					'finished' => $finished,
+					'found'    => $found,
+					'paged'    => $paged,
+					'success'  => true,
+				);
+
+				wp_send_json( $response );
+
+			}
 
 		}
 
@@ -142,6 +165,21 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 			wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
 
 			wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
+
+		}
+
+		// clean out all of the unnecessary image sizes upon attachment creation. Unfortunatelly there is no less hackier way to do this :/
+		public function add_post_meta_filters( $mid, $object_id, $meta_key ) {
+
+			if ( '_wp_attachment_metadata' !== $meta_key ) {
+
+				return;
+
+			}
+
+			$this->remove_image_sizes( $object_id );
+
+			return;
 
 		}
 
