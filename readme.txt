@@ -44,6 +44,9 @@ Nothing special to show. The only UI is in the Media settings page where a simpl
 
 == Changelog ==
 
+= 1.0.5 =
+* Fix issue where full image size would be duplicated when width and height are both set to 0.
+
 = 1.0.4 =
 * Fix issue with cleaning up images from media settings screen.
 

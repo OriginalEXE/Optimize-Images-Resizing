@@ -57,6 +57,12 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
 			}
 
+			if ( 0 === absint( $wanted_width ) && 0 === absint( $wanted_height ) ) {
+
+				return false;
+
+			}
+
 			if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
 
 				return false;
