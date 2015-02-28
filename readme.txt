@@ -44,6 +44,9 @@ Nothing special to show. The only UI is in the Media settings page where a simpl
 
 == Changelog ==
 
+= 1.0.6 =
+* Fix issue where default image size would not be generated after cleanup, if a custom image size of the same dimensions is defined.
+
 = 1.0.5 =
 * Fix issue where full image size would be duplicated when width and height are both set to 0.
 

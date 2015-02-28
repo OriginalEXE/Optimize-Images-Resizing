@@ -99,10 +99,18 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 					}
 
+					// Don't remove images if they are used in default image sizes
+					// (happens when custom image size matches the dimensions of the default ones)
+					$do_not_delete = array();
+
 					foreach ( $meta['sizes'] as $size => $params ) {
 
 						// we don't want to delete thumbnails, they are used in admin area
 						if ( 'thumbnail' === $size || 'medium' === $size || 'large' === $size ) {
+
+							$file = realpath( $file_path . $params['file'] );
+
+							$do_not_delete[] = $file;
 
 							continue;
 
@@ -110,7 +118,7 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 						$file = realpath( $file_path . $params['file'] );
 
-						if ( is_readable( $file ) ) {
+						if ( ! in_array( $file, $do_not_delete ) && is_readable( $file ) ) {
 
 							unlink( $file );
 
