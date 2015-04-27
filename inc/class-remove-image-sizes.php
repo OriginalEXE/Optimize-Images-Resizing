@@ -91,6 +91,12 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 					$meta = wp_get_attachment_metadata( $attachment_id );
 
+					if ( empty( $meta['file'] ) ) {
+
+						continue;
+
+					}
+
 					$file_path = str_replace( basename( $meta['file'] ), '', trailingslashit( $upload_dir['basedir'] ) . $meta['file'] );
 
 					if ( empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
