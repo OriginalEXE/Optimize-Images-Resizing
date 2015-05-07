@@ -44,6 +44,9 @@ Nothing special to show. The only UI is in the Media settings page where a simpl
 
 == Changelog ==
 
+= 1.0.8 =
+* Fix compatibility issue in specific scenarios
+
 = 1.0.7 =
 * Fix issue where cleanup process would get stuck on certain images.
 

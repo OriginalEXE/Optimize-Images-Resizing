@@ -35,6 +35,8 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 			$meta = wp_get_attachment_metadata( $id );
 			$wanted_width = $wanted_height = 0;
 
+			if ( empty( $meta['file'] ) ) return false;
+
 			// get $size dimensions
 			global $_wp_additional_image_sizes;
 
