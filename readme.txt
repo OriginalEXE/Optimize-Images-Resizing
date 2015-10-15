@@ -44,6 +44,9 @@ Nothing special to show. The only UI is in the Media settings page where a simpl
 
 == Changelog ==
 
+= 1.1.0 =
+* Improve the process of removing unwanted image sizes on image upload (props @bcole808)
+
 = 1.0.9 =
 * Declare WordPress 4.3 support
 
