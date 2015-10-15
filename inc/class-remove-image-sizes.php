@@ -22,13 +22,21 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 				add_action( 'wp_ajax_oir_remove_image_sizes', array( self::$instance, 'remove_image_sizes' ) );
 				add_action( 'admin_enqueue_scripts', array( self::$instance, 'enqueue_assets' ) );
 
-				// Upon image upload, clean up all but the original file and thumbnail
-				add_action( 'added_post_meta', array( self::$instance, 'add_post_meta_filters' ), 10, 3 );
-
+				// Upon image upload, only generate default sizes
+				add_filter( 'intermediate_image_sizes_advanced', array( self::$instance, 'remove_intermediate_sizes' ), 10, 1 );
 
 			}
 
 			return self::$instance;
+
+		}
+
+		// Filter the sizes that get created initially		
+		public function remove_intermediate_sizes( $sizes ) {
+
+			$allowed_sizes = array( 'thumbnail', 'medium', 'large' );
+
+			return array_intersect_key( $sizes, array_flip( $allowed_sizes ) );
 
 		}
 
@@ -179,21 +187,6 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 			wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
 
 			wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
-
-		}
-
-		// clean out all of the unnecessary image sizes upon attachment creation. Unfortunatelly there is no less hackier way to do this :/
-		public function add_post_meta_filters( $mid, $object_id, $meta_key ) {
-
-			if ( '_wp_attachment_metadata' !== $meta_key ) {
-
-				return;
-
-			}
-
-			$this->remove_image_sizes( $object_id );
-
-			return;
 
 		}
 
