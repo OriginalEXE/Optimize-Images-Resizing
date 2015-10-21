@@ -34,7 +34,9 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 		// Filter the sizes that get created initially		
 		public function remove_intermediate_sizes( $sizes ) {
 
-			$allowed_sizes = array( 'thumbnail', 'medium', 'large' );
+			$allowed_sizes = apply_filters( 'image_size_names_choose', array() );
+
+			$allowed_sizes = array_merge( array_keys( $allowed_sizes ), array( 'thumbnail', 'medium', 'large' ) );
 
 			return array_intersect_key( $sizes, array_flip( $allowed_sizes ) );
 
@@ -117,10 +119,14 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 					// (happens when custom image size matches the dimensions of the default ones)
 					$do_not_delete = array();
 
+					$allowed_sizes = apply_filters( 'image_size_names_choose', array() );
+
+					$allowed_sizes = array_merge( array_keys( $allowed_sizes ), array( 'thumbnail', 'medium', 'large' ) );
+
 					foreach ( $meta['sizes'] as $size => $params ) {
 
 						// we don't want to delete thumbnails, they are used in admin area
-						if ( 'thumbnail' === $size || 'medium' === $size || 'large' === $size ) {
+						if ( in_array( $size, $allowed_sizes ) ) {
 
 							$file = realpath( $file_path . $params['file'] );
 

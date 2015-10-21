@@ -67,7 +67,19 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
 			if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
 
-				return false;
+				$img_url = wp_get_attachment_url( $id );
+				$img_url_basename = wp_basename( $img_url );
+
+				$img_url = str_replace( $img_url_basename, $intermediate['file'], $img_url );
+				$result_width = $intermediate['width'];
+				$result_height = $intermediate['height'];
+
+				return array(
+					$img_url,
+					$result_width,
+					$result_height,
+					true,
+				);
 
 			} else {
 
@@ -89,14 +101,28 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
 					$image_editor->save( $filename );
 
+					$result_filename = wp_basename( $filename );
+
 					$meta['sizes'][ $size ] = array(
-						'file'      => basename( $filename ),
+						'file'      => $result_filename,
 						'width'     => $result_width,
 						'height'    => $result_height,
 						'mime-type' => get_post_mime_type( $id ),
 					);
 
 					wp_update_attachment_metadata( $id, $meta );
+
+					$img_url = wp_get_attachment_url( $id );
+					$img_url_basename = wp_basename( $img_url );
+
+					$img_url = str_replace( $img_url_basename, $result_filename, $img_url );
+
+					return array(
+						$img_url,
+						$result_width,
+						$result_height,
+						true,
+					);
 
 				} else {
 

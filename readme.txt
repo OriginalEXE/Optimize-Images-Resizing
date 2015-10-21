@@ -3,7 +3,7 @@ Contributors: OriginalEXE
 Tags: images, media, resizing, optimize, cleanup, remove, empty, clean, resize, image
 Requires at least: 3.8
 Tested up to: 4.3
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -18,6 +18,10 @@ What this plugin does is it optimizes the image handling in such a way that imag
 Resizing is done only once and later normally served by WordPress, so there is no performance hit.
 
 Plugin also includes a method for removing all of the image sizes generated so far (useful when you install this plugin on a site with a lot of existing media).
+
+*TO REMOVE* image sizes generated before activating the plugin, visit the Settings -> Media and use the button under "Remove image sizes" to perform the cleanup.
+
+Other than that, you don't need to do anything, plugin works silently in the background.
 
 To sum up:
 
@@ -43,6 +47,11 @@ None so far
 Nothing special to show. The only UI is in the Media settings page where a simple button is added for cleaning previously uploaded images
 
 == Changelog ==
+
+= 1.2.0 =
+* Improve performance by returning the correct response after image is resized.
+* Improve performance by returning response immediately if image size is already found.
+* Avoid removing image sizes that are added via 'image_size_names_choose' filter (they get generated anyway on the Media screen).
 
 = 1.1.0 =
 * Improve the process of removing unwanted image sizes on image upload (props @bcole808)

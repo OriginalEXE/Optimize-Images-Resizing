@@ -6,7 +6,7 @@
  * Description: Improve WordPress image sizes generation and save your hosting space
  * Author: OriginalEXE
  * Author URI: https://twitter.com/Original_EXE
- * Version: 1.1.0
+ * Version: 1.2.0
  */
 
 // Exit if accessed directly
@@ -43,7 +43,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 
 			// Plugin version
 			if ( ! defined( 'OIR_VERSION' ) )
-				define( 'OIR_VERSION', '1.1.0' );
+				define( 'OIR_VERSION', '1.2.0' );
 
 			// Plugin Folder Path
 			if ( ! defined( 'OIR_PLUGIN_DIR' ) )
