@@ -7,19 +7,19 @@ Stable tag: 1.2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Improve WordPress image sizes generation and save your hosting space.
+Plugin optimizes the process of generating custom image sizes in WordPress and offers a cleanup functionality for preexisting images.
 
 == Description ==
 
 If you were ever annoyed about the way WordPress handles images resizing, this is a plugin for you.
 
-What this plugin does is it optimizes the image handling in such a way that images are resized only when they are actually needed. What that means is that if your plugin/theme define a lot of image sizes, none of them will be generated on the image upload (like they would be usually), but only if they are actually requested in that size.
+What this plugin does is it optimizes the image handling in such a way that images are resized only when they are actually needed. What that means is that if your plugins/theme define a lot of image sizes, none of them will be generated on the image upload (like they would be usually), but only if they are actually requested in that size.
 
 Resizing is done only once and later normally served by WordPress, so there is no performance hit.
 
 Plugin also includes a method for removing all of the image sizes generated so far (useful when you install this plugin on a site with a lot of existing media).
 
-*TO REMOVE* image sizes generated before activating the plugin, visit the Settings -> Media and use the button under "Remove image sizes" to perform the cleanup.
+**TO REMOVE** image sizes generated prior to activating the plugin, visit the Settings -> Media and use the button under "Remove image sizes" to perform the cleanup.
 
 Other than that, you don't need to do anything, plugin works silently in the background.
 
@@ -40,11 +40,26 @@ To sum up:
 
 == Frequently Asked Questions ==
 
-None so far
+**I just installed the plugin. Is there anything else I need to do?**
+
+That depends. Is this a new site with no existing images? If the answer is yes, then there is nothing else you need to do, any uploads that happen after you activated this plugin will be automatically cleaned up. If the answer is no, keep reading.
+
+**How to clean up existing images?**
+
+Images can be cleaned up at any time by visiting Settings -> Media in your WordPress Dashboard. You will see a new piece of UI labeled "Remove image sizes" (check Screenshots tab if you want to see how it looks like). Simply click on the "Start cleanup" button and wait for the process to finish (there is a visual feedback for the duration of the cleanup).
+
+**Some image sizes are not cleaned up, which ones and why?**
+
+Plugin never cleans default image sizes (thumbnail, medium, large), so if your theme/plugins don't define custom image sizes, this plugin will not help you out. Why does it not clean up those  mage sizes? Well the reason for that is that all of those image sizes are used in the Media UI of the WordPress Dashboard. What that means is: if plugin were to clean up all sizes, they would be generated for all of your images as soon as you would visit the Media screen. Since I don't know of anyone that never visits the Media screen, it made sense to exclude those image sizes from the cleaning process and avoid the redundant server load.
+
+**Are there any drawbacks to using this plugin?**
+
+Not that I know of. Your WordPress website will continue working as it did before, only your uploads folder will be a bit lighter (depending on the number of images and image sizes you have). It's certainly useful during migrations!
 
 == Screenshots ==
 
-Nothing special to show. The only UI is in the Media settings page where a simple button is added for cleaning previously uploaded images
+1. Admin UI added by the plugin.
+2. Difference between before and after running the plugin under a default theme (Twenty Sixteen).
 
 == Changelog ==
 
