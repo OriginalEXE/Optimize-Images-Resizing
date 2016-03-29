@@ -100,3 +100,10 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 endif;
 
 OIR_Init::instantiate();
+
+/**
+ * WP CLI Commands
+ */
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once 'inc/class-wp-cli.php';
+}
