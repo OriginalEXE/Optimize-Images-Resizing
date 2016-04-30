@@ -207,6 +207,6 @@ OIR_Remove_Image_Sizes::instantiate();
  */
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
-	require_once 'inc/class-wp-cli.php';
+	require_once 'inc/class-cli-command.php';
 
 }
