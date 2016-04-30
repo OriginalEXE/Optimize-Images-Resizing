@@ -6,7 +6,9 @@
  * Description: Improve WordPress image sizes generation and save your hosting space
  * Author: OriginalEXE
  * Author URI: https://twitter.com/Original_EXE
- * Version: 1.2.1
+ * Text Domain: optimize-images-resizing
+ * Domain Path: /languages
+ * Version: 1.3.0
  */
 
 // Exit if accessed directly
@@ -43,7 +45,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 
 			// Plugin version
 			if ( ! defined( 'OIR_VERSION' ) )
-				define( 'OIR_VERSION', '1.2.0' );
+				define( 'OIR_VERSION', '1.3.0' );
 
 			// Plugin Folder Path
 			if ( ! defined( 'OIR_PLUGIN_DIR' ) )
@@ -91,7 +93,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 
 			$lang_dir = trailingslashit( apply_filters( 'oir_textdomain_location', $lang_dir ) );
 
-			load_plugin_textdomain( 'oir_plugin', false, $lang_dir );	
+			load_plugin_textdomain( 'optimize-images-resizing', false, $lang_dir );	
 
 		}
 
@@ -100,10 +102,3 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 endif;
 
 OIR_Init::instantiate();
-
-/**
- * WP CLI Commands
- */
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once 'inc/class-wp-cli.php';
-}

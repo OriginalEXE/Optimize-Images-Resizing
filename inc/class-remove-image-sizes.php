@@ -45,16 +45,16 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 		// register our media settings
 		public function add_media_settings() {
 
-			add_settings_field( 'oir_media_settings', __( 'Remove image sizes', 'oir_plugin' ), array( $this, 'media_settings_output' ), 'media', 'default' );
+			add_settings_field( 'oir_media_settings', __( 'Remove image sizes', 'optimize-images-resizing' ), array( $this, 'media_settings_output' ), 'media', 'default' );
 
 		}
 
 		// add a small output to media settings screen
 		public function media_settings_output() {
 
-			echo '<button id="oir-remove-image-sizes" class="button">' . __( 'Start cleanup', 'oir_plugin' ) . '</button>';
+			echo '<button id="oir-remove-image-sizes" class="button">' . __( 'Start cleanup', 'optimize-images-resizing' ) . '</button>';
 			echo '<p id="oir-status-message"></p>';
-			echo '<p class="description">' . __( 'Use this to clean up all of the image sizes that were generated for your existing media. They will later be generated only when needed, preserving the space.', 'oir_plugin' ) . '</p>';
+			echo '<p class="description">' . __( 'Use this to clean up all of the image sizes that were generated for your existing media. They will later be generated only when needed, preserving the space.', 'optimize-images-resizing' ) . '</p>';
 
 		}
 
@@ -183,14 +183,14 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 			$localize = array(
 				'l10n'  => array(
-					'something_wrong'  => __( 'Something went wrong, please try again or contact the developer!', 'oir_plugin' ),
-					'process_finished' => __( 'Process finished, your media folder should now be much more lighter.', 'oir_plugin' ),
-					'cleanup_progress' => __( 'Cleanup in progress, leave this page open!', 'oir_plugin' ),
+					'something_wrong'  => __( 'Something went wrong, please try again or contact the developer!', 'optimize-images-resizing' ),
+					'process_finished' => __( 'Process finished, your media folder should now be much more lighter.', 'optimize-images-resizing' ),
+					'cleanup_progress' => __( 'Cleanup in progress, leave this page open!', 'optimize-images-resizing' ),
 				),
 				'nonce' => wp_create_nonce( 'oir-nonce' ),
 			);
 
-			wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
+			wp_localize_script( 'oir_remove_image_sizes', 'optimize-images-resizing', $localize );
 
 			wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
 
@@ -201,3 +201,12 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 endif;
 
 OIR_Remove_Image_Sizes::instantiate();
+
+/**
+ * WP CLI Commands
+ */
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+
+	require_once 'inc/class-wp-cli.php';
+
+}
