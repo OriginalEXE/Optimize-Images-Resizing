@@ -2,8 +2,8 @@
 Contributors: OriginalEXE
 Tags: images, media, resizing, optimize, cleanup, remove, empty, clean, resize, image
 Requires at least: 3.8
-Tested up to: 4.4
-Stable tag: 1.2.1
+Tested up to: 4.5
+Stable tag: 1.3.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,10 @@ Images can be cleaned up at any time by visiting Settings -> Media in your WordP
 
 Plugin never cleans default image sizes (thumbnail, medium, large), so if your theme/plugins don't define custom image sizes, this plugin will not help you out. Why does it not clean up those  mage sizes? Well the reason for that is that all of those image sizes are used in the Media UI of the WordPress Dashboard. What that means is: if plugin were to clean up all sizes, they would be generated for all of your images as soon as you would visit the Media screen. Since I don't know of anyone that never visits the Media screen, it made sense to exclude those image sizes from the cleaning process and avoid the redundant server load.
 
+**How do I know which files the plugin cleaned up?**
+
+A list of removed files is available only for the manual cleanup request. Once the request finishes, a message will appear stating how many images it removed. Click on the number to show the list of files that were removed in the process.
+
 **Are there any drawbacks to using this plugin?**
 
 Not that I know of. Your WordPress website will continue working as it did before, only your uploads folder will be a bit lighter (depending on the number of images and image sizes you have). It's certainly useful during migrations!
@@ -62,6 +66,12 @@ Not that I know of. Your WordPress website will continue working as it did befor
 2. Difference between before and after running the plugin under a default theme (Twenty Sixteen).
 
 == Changelog ==
+
+= 1.3.0 =
+* Improve the plugin UI and UX by providing a more meaningful feedback (plugin will now tell you how many images it removed exactly and show the list of files that got removed).
+* Introduce WP-CLI support (props @charlesLF).
+* Fix issues with the plugin localization support.
+* Declare WordPress 4.5 compatibility.
 
 = 1.2.1 =
 * Declare WordPress 4.4 compatibility.

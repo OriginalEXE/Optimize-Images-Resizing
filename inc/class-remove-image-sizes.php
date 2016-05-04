@@ -52,9 +52,12 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 		// add a small output to media settings screen
 		public function media_settings_output() {
 
-			echo '<button id="oir-remove-image-sizes" class="button">' . __( 'Start cleanup', 'optimize-images-resizing' ) . '</button>';
+			echo sprintf( '<button id="oir-remove-image-sizes" class="button">%s</button>', __( 'Start cleanup', 'optimize-images-resizing' ) );
 			echo '<p id="oir-status-message"></p>';
-			echo '<p class="description">' . __( 'Use this to clean up all of the image sizes that were generated for your existing media. They will later be generated only when needed, preserving the space.', 'optimize-images-resizing' ) . '</p>';
+			echo sprintf( '<p class="description">%s</p>',
+				__( 'Click this button to remove redundant image sizes. You only need to do this once.', 'optimize-images-resizing' )
+			);
+			echo '<div id="oir-log"></div>';
 
 		}
 
@@ -62,6 +65,8 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 		public function remove_image_sizes( $__attachment_id ) {
 
 			$paged = ! empty( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
+			$removed = ! empty( $_POST['removed'] ) ? absint( $_POST['removed'] ) : 0;
+			$removed_log = ! empty( $_POST['removed_log'] ) ? (array) $_POST['removed_log'] : array();
 
 			if ( ! $__attachment_id ) {
 
@@ -125,10 +130,10 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 					foreach ( $meta['sizes'] as $size => $params ) {
 
+						$file = realpath( $file_path . $params['file'] );
+
 						// we don't want to delete thumbnails, they are used in admin area
 						if ( in_array( $size, $allowed_sizes ) ) {
-
-							$file = realpath( $file_path . $params['file'] );
 
 							$do_not_delete[] = $file;
 
@@ -136,13 +141,14 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
 						}
 
-						$file = realpath( $file_path . $params['file'] );
-
 						if ( ! in_array( $file, $do_not_delete ) && is_readable( $file ) ) {
 
 							unlink( $file );
 
 							unset( $meta['sizes'][ $size ] );
+
+							$removed++;
+							$removed_log[] = $file;
 
 						}
 
@@ -157,10 +163,12 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 			if ( ! $__attachment_id ) {
 
 				$response = array(
-					'finished' => $finished,
-					'found'    => $found,
-					'paged'    => $paged,
-					'success'  => true,
+					'finished'    => $finished,
+					'found'       => $found,
+					'paged'       => $paged,
+					'removed'     => $removed,
+					'removed_log' => $removed_log,
+					'success'     => true,
 				);
 
 				wp_send_json( $response );
@@ -184,13 +192,14 @@ if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 			$localize = array(
 				'l10n'  => array(
 					'something_wrong'  => __( 'Something went wrong, please try again or contact the developer!', 'optimize-images-resizing' ),
-					'process_finished' => __( 'Process finished, your media folder should now be much more lighter.', 'optimize-images-resizing' ),
+					'process_finished' => __( 'Cleanup was successfully completed. Number of images removed: %d.', 'optimize-images-resizing' ),
+					'nothing_to_remove' => __( 'There was nothing to clean up, looks like you have no redundant image sizes. Good job!', 'optimize-images-resizing' ),
 					'cleanup_progress' => __( 'Cleanup in progress, leave this page open!', 'optimize-images-resizing' ),
 				),
 				'nonce' => wp_create_nonce( 'oir-nonce' ),
 			);
 
-			wp_localize_script( 'oir_remove_image_sizes', 'optimize-images-resizing', $localize );
+			wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
 
 			wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
 
