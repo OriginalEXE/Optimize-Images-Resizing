@@ -2,7 +2,7 @@
 Contributors: OriginalEXE
 Tags: images, media, resizing, optimize, cleanup, remove, empty, clean, resize, image
 Requires at least: 3.8
-Tested up to: 4.5
+Tested up to: 4.7
 Stable tag: 1.3.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,11 +15,11 @@ If you were ever annoyed about the way WordPress handles images resizing, this i
 
 What this plugin does is it optimizes the image handling in such a way that images are resized only when they are actually needed. What that means is that if your plugins/theme define a lot of image sizes, none of them will be generated on the image upload (like they would be usually), but only if they are actually requested in that size.
 
-Resizing is done only once and later normally served by WordPress, so there is no performance hit.
+Resizing is done only once, images are later normally served by WordPress, so there is no performance hit.
 
-Plugin also includes a method for removing all of the image sizes generated so far (useful when you install this plugin on a site with a lot of existing media).
+Plugin also includes a method for removing all of the previously generated image sizes (useful when you install this plugin on a site with a lot of existing media).
 
-**TO REMOVE** image sizes generated prior to activating the plugin, visit the Settings -> Media and use the button under "Remove image sizes" to perform the cleanup.
+**TO REMOVE** image sizes generated prior to activating the plugin, visit the 'Tools -> Remove image sizes' and use the button to perform the cleanup.
 
 Other than that, you don't need to do anything, plugin works silently in the background.
 
@@ -34,7 +34,7 @@ To sum up:
 
 1. Upload `optimize-images-resizing` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. (optional) Visit Settings -> Media to clean up your media folder
+3. (optional) Visit 'Tools -> Remove image sizes' to clean up your media folder
 4. ???
 5. Profit
 
@@ -42,19 +42,19 @@ To sum up:
 
 **I just installed the plugin. Is there anything else I need to do?**
 
-That depends. Is this a new site with no existing images? If the answer is yes, then there is nothing else you need to do, any uploads that happen after you activated this plugin will be automatically cleaned up. If the answer is no, keep reading.
+Is this a new site with no existing images? If the answer is yes, then there is nothing else you need to do, any uploads that happen after you activated this plugin will be automatically cleaned up. If the answer is no, keep reading.
 
 **How to clean up existing images?**
 
-Images can be cleaned up at any time by visiting Settings -> Media in your WordPress Dashboard. You will see a new piece of UI labeled "Remove image sizes" (check Screenshots tab if you want to see how it looks like). Simply click on the "Start cleanup" button and wait for the process to finish (there is a visual feedback for the duration of the cleanup).
+Images can be cleaned up at any time by visiting 'Tools -> Remove image sizes' in your WordPress Dashboard. Simply click on the "Start new cleanup" button and wait for the process to finish (there is a visual feedback for the duration of the cleanup).
 
 **Some image sizes are not cleaned up, which ones and why?**
 
-Plugin never cleans default image sizes (thumbnail, medium, large), so if your theme/plugins don't define custom image sizes, this plugin will not help you out. Why does it not clean up those  mage sizes? Well the reason for that is that all of those image sizes are used in the Media UI of the WordPress Dashboard. What that means is: if plugin were to clean up all sizes, they would be generated for all of your images as soon as you would visit the Media screen. Since I don't know of anyone that never visits the Media screen, it made sense to exclude those image sizes from the cleaning process and avoid the redundant server load.
+Plugin never cleans default image sizes (thumbnail, medium, large), so if your theme/plugins don't define custom image sizes, you don't need this plugin. Why does it not clean up those image sizes? Well the reason for that is that all of those image sizes are used in the Media UI of the WordPress Dashboard. What that means is: if plugin were to clean up all sizes, they would be generated for all of your images as soon as you would visit the Media screen. Since I don't know of anyone that never visits the Media screen, it made sense to exclude those image sizes from the cleaning process and avoid the redundant server load.
 
 **How do I know which files the plugin cleaned up?**
 
-A list of removed files is available only for the manual cleanup request. Once the request finishes, a message will appear stating how many images it removed. Click on the number to show the list of files that were removed in the process.
+A list of removed files is available only for the manual cleanup request, by checking the checkbox at the top of the plugin page. Once the request finishes, a message will appear stating how many images it removed. Click on the number to show the list of files that were removed in the process.
 
 **Are there any drawbacks to using this plugin?**
 
@@ -66,6 +66,11 @@ Not that I know of. Your WordPress website will continue working as it did befor
 2. Difference between before and after running the plugin under a default theme (Twenty Sixteen).
 
 == Changelog ==
+
+= 1.4.0 =
+* Move plugin to the Tools menu
+* Add support for resuming image sizes removing
+* Declare WordPress 4.7 compatibility.
 
 = 1.3.0 =
 * Improve the plugin UI and UX by providing a more meaningful feedback (plugin will now tell you how many images it removed exactly and show the list of files that got removed).

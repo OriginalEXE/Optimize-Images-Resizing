@@ -6,137 +6,141 @@
 // Check if class already exists
 if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
-	final class OIR_Resize_Image {
+  final class OIR_Resize_Image {
 
-		// Will hold the only instance of our main plugin class
-		private static $instance;
+    // Will hold the only instance of our main plugin class
+    private static $instance;
 
-		// Instantiate the class and set up stuff
-		public static function instantiate() {
+    // Instantiate the class and set up stuff
+    public static function instantiate() {
 
-			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof OIR_Resize_Image ) ) {
+      if ( ! isset( self::$instance ) && ! ( self::$instance instanceof OIR_Resize_Image ) ) {
 
-				self::$instance = new OIR_Resize_Image();
+        self::$instance = new OIR_Resize_Image();
 
-				add_filter( 'image_downsize', array( self::$instance, 'image_downsize' ), 10, 3 );
+      }
 
-			}
+      return self::$instance;
 
-			return self::$instance;
+    }
 
-		}
+    public function __construct() {
 
-		// we hook into the filter, check if image size exists, generate it if not and then bail out
-		public function image_downsize( $out, $id, $size ) {
+      add_filter( 'image_downsize', array( self::$instance, 'image_downsize' ), 10, 3 );
 
-			// we don't handle this
-			if ( is_array( $size ) ) return false;
+    }
 
-			$meta = wp_get_attachment_metadata( $id );
-			$wanted_width = $wanted_height = 0;
+    // we hook into the filter, check if image size exists, generate it if not and then bail out
+    public function image_downsize( $out, $id, $size ) {
 
-			if ( empty( $meta['file'] ) ) return false;
+      // we don't handle this
+      if ( is_array( $size ) ) return false;
 
-			// get $size dimensions
-			global $_wp_additional_image_sizes;
+      $meta = wp_get_attachment_metadata( $id );
+      $wanted_width = $wanted_height = 0;
 
-			if ( isset( $_wp_additional_image_sizes ) && isset( $_wp_additional_image_sizes[ $size ] ) ) {
+      if ( empty( $meta['file'] ) ) return false;
 
-				$wanted_width = $_wp_additional_image_sizes[ $size ]['width'];
-				$wanted_height = $_wp_additional_image_sizes[ $size ]['height'];
-				$wanted_crop = isset( $_wp_additional_image_sizes[ $size ]['crop'] ) ? $_wp_additional_image_sizes[ $size ]['crop'] : false;
+      // get $size dimensions
+      global $_wp_additional_image_sizes;
 
-			} else if ( in_array( $size, array( 'thumbnail', 'medium', 'large' ) ) ) {
+      if ( isset( $_wp_additional_image_sizes ) && isset( $_wp_additional_image_sizes[ $size ] ) ) {
 
-				$wanted_width  = get_option( $size . '_size_w' );
-				$wanted_height = get_option( $size . '_size_h' );
-				$wanted_crop   = ( 'thumbnail' === $size ) ? (bool) get_option( 'thumbnail_crop' ) : false;
+        $wanted_width = $_wp_additional_image_sizes[ $size ]['width'];
+        $wanted_height = $_wp_additional_image_sizes[ $size ]['height'];
+        $wanted_crop = isset( $_wp_additional_image_sizes[ $size ]['crop'] ) ? $_wp_additional_image_sizes[ $size ]['crop'] : false;
 
-			} else {
+      } else if ( in_array( $size, array( 'thumbnail', 'medium', 'large' ) ) ) {
 
-				// unknown size, bail out
-				return false;
+        $wanted_width  = get_option( $size . '_size_w' );
+        $wanted_height = get_option( $size . '_size_h' );
+        $wanted_crop   = ( 'thumbnail' === $size ) ? (bool) get_option( 'thumbnail_crop' ) : false;
 
-			}
+      } else {
 
-			if ( 0 === absint( $wanted_width ) && 0 === absint( $wanted_height ) ) {
+        // unknown size, bail out
+        return false;
 
-				return false;
+      }
 
-			}
+      if ( 0 === absint( $wanted_width ) && 0 === absint( $wanted_height ) ) {
 
-			if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
+        return false;
 
-				$img_url = wp_get_attachment_url( $id );
-				$img_url_basename = wp_basename( $img_url );
+      }
 
-				$img_url = str_replace( $img_url_basename, $intermediate['file'], $img_url );
-				$result_width = $intermediate['width'];
-				$result_height = $intermediate['height'];
+      if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
 
-				return array(
-					$img_url,
-					$result_width,
-					$result_height,
-					true,
-				);
+        $img_url = wp_get_attachment_url( $id );
+        $img_url_basename = wp_basename( $img_url );
 
-			} else {
+        $img_url = str_replace( $img_url_basename, $intermediate['file'], $img_url );
+        $result_width = $intermediate['width'];
+        $result_height = $intermediate['height'];
 
-				// image size not found, create it
-				$attachment_path = get_attached_file( $id );
+        return array(
+          $img_url,
+          $result_width,
+          $result_height,
+          true,
+        );
 
-				$image_editor = wp_get_image_editor( $attachment_path );
+      } else {
 
-				if ( ! is_wp_error( $image_editor ) ) {
+        // image size not found, create it
+        $attachment_path = get_attached_file( $id );
 
-					$image_editor->resize( $wanted_width, $wanted_height, $wanted_crop );
-					$result_image_size = $image_editor->get_size();
+        $image_editor = wp_get_image_editor( $attachment_path );
 
-					$result_width = $result_image_size['width'];
-					$result_height = $result_image_size['height'];
+        if ( ! is_wp_error( $image_editor ) ) {
 
-					$suffix = $result_width . 'x' . $result_height;
-					$filename = $image_editor->generate_filename( $suffix );
+          $image_editor->resize( $wanted_width, $wanted_height, $wanted_crop );
+          $result_image_size = $image_editor->get_size();
 
-					$image_editor->save( $filename );
+          $result_width = $result_image_size['width'];
+          $result_height = $result_image_size['height'];
 
-					$result_filename = wp_basename( $filename );
+          $suffix = $result_width . 'x' . $result_height;
+          $filename = $image_editor->generate_filename( $suffix );
 
-					$meta['sizes'][ $size ] = array(
-						'file'      => $result_filename,
-						'width'     => $result_width,
-						'height'    => $result_height,
-						'mime-type' => get_post_mime_type( $id ),
-					);
+          $image_editor->save( $filename );
 
-					wp_update_attachment_metadata( $id, $meta );
+          $result_filename = wp_basename( $filename );
 
-					$img_url = wp_get_attachment_url( $id );
-					$img_url_basename = wp_basename( $img_url );
+          $meta['sizes'][ $size ] = array(
+            'file'      => $result_filename,
+            'width'     => $result_width,
+            'height'    => $result_height,
+            'mime-type' => get_post_mime_type( $id ),
+          );
 
-					$img_url = str_replace( $img_url_basename, $result_filename, $img_url );
+          wp_update_attachment_metadata( $id, $meta );
 
-					return array(
-						$img_url,
-						$result_width,
-						$result_height,
-						true,
-					);
+          $img_url = wp_get_attachment_url( $id );
+          $img_url_basename = wp_basename( $img_url );
 
-				} else {
+          $img_url = str_replace( $img_url_basename, $result_filename, $img_url );
 
-					return false;
+          return array(
+            $img_url,
+            $result_width,
+            $result_height,
+            true,
+          );
 
-				}
+        } else {
 
-			}
+          return false;
 
-			return false;
+        }
 
-		}
+      }
 
-	}
+      return false;
+
+    }
+
+  }
 
 endif;
 

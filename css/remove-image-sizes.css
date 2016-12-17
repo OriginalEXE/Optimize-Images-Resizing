@@ -1,4 +1,9 @@
 #oir-status-message,
 #oir-log {
-	display: none;
+  display: none;
+}
+
+#oir-buttons {
+  margin-bottom: 20px;
+  margin-top: 5px;
 }

@@ -6,206 +6,280 @@
 // Check if class already exists
 if ( ! class_exists( 'OIR_Remove_Image_Sizes' ) ) :
 
-	final class OIR_Remove_Image_Sizes {
+  final class OIR_Remove_Image_Sizes {
 
-		// Will hold the only instance of our main plugin class
-		private static $instance;
+    // Will hold the only instance of our main plugin class
+    private static $instance;
 
-		// Instantiate the class and set up stuff
-		public static function instantiate() {
+    // Instantiate the class and set up stuff
+    public static function instantiate() {
 
-			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof OIR_Remove_Image_Sizes ) ) {
+      if ( ! isset( self::$instance ) && ! ( self::$instance instanceof OIR_Remove_Image_Sizes ) ) {
 
-				self::$instance = new OIR_Remove_Image_Sizes();
+        self::$instance = new OIR_Remove_Image_Sizes();
 
-				add_action( 'admin_init', array( self::$instance, 'add_media_settings' ) );
-				add_action( 'wp_ajax_oir_remove_image_sizes', array( self::$instance, 'remove_image_sizes' ) );
-				add_action( 'admin_enqueue_scripts', array( self::$instance, 'enqueue_assets' ) );
+      }
 
-				// Upon image upload, only generate default sizes
-				add_filter( 'intermediate_image_sizes_advanced', array( self::$instance, 'remove_intermediate_sizes' ), 10, 1 );
+      return self::$instance;
 
-			}
+    }
 
-			return self::$instance;
+    public function __construct() {
 
-		}
+      add_action( 'admin_menu', array( $this, 'add_tools_subpage' ) );
+      add_action( 'wp_ajax_oir_remove_image_sizes', array( $this, 'remove_image_sizes' ) );
+      add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
-		// Filter the sizes that get created initially		
-		public function remove_intermediate_sizes( $sizes ) {
+      // Upon image upload, only generate default sizes
+      add_filter( 'intermediate_image_sizes_advanced', array( $this, 'remove_intermediate_sizes' ), 10, 1 );
 
-			$allowed_sizes = apply_filters( 'image_size_names_choose', array() );
+    }
 
-			$allowed_sizes = array_merge( array_keys( $allowed_sizes ), array( 'thumbnail', 'medium', 'large' ) );
+    // Returns image sizes that we don't want to remove
+    public function get_ignored_image_sizes() {
 
-			return array_intersect_key( $sizes, array_flip( $allowed_sizes ) );
+      $ignored_sizes = apply_filters( 'image_size_names_choose', array() );
 
-		}
+      $ignored_sizes = array_merge( array_keys( $ignored_sizes ), array( 'thumbnail', 'medium', 'large' ) );
 
-		// register our media settings
-		public function add_media_settings() {
+      return apply_filters( 'oir_ignored_sizes', $ignored_sizes );
 
-			add_settings_field( 'oir_media_settings', __( 'Remove image sizes', 'optimize-images-resizing' ), array( $this, 'media_settings_output' ), 'media', 'default' );
+    }
 
-		}
+    // Filter the sizes that get created initially
+    public function remove_intermediate_sizes( $sizes ) {
 
-		// add a small output to media settings screen
-		public function media_settings_output() {
+      return array_intersect_key( $sizes, $this->get_ignored_image_sizes() );
 
-			echo sprintf( '<button id="oir-remove-image-sizes" class="button">%s</button>', __( 'Start cleanup', 'optimize-images-resizing' ) );
-			echo '<p id="oir-status-message"></p>';
-			echo sprintf( '<p class="description">%s</p>',
-				__( 'Click this button to remove redundant image sizes. You only need to do this once.', 'optimize-images-resizing' )
-			);
-			echo '<div id="oir-log"></div>';
+    }
 
-		}
+    public function add_tools_subpage() {
 
-		// cleans up extra image sizes when called via ajax
-		public function remove_image_sizes( $__attachment_id ) {
+      add_submenu_page(
+        'tools.php',
+        __( 'Remove image sizes', 'optimize-images-resizing' ),
+        __( 'Remove image sizes', 'optimize-images-resizing' ),
+        'manage_options',
+        'optimize-images-resizing',
+        array( $this, 'tools_subpage_output' )
+      );
 
-			$paged = ! empty( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
-			$removed = ! empty( $_POST['removed'] ) ? absint( $_POST['removed'] ) : 0;
-			$removed_log = ! empty( $_POST['removed_log'] ) ? (array) $_POST['removed_log'] : array();
+    }
 
-			if ( ! $__attachment_id ) {
+    // add a small output to media settings screen
+    public function tools_subpage_output() {
 
-				check_ajax_referer( 'oir-nonce', 'nonce' );
+      $cleanup_in_progress = get_option( 'oir_cleanup_progress_page', false );
 
-				$args = array(
-					'fields'         => 'ids',
-					'paged'          => $paged,
-					'post_mime_type' => 'image',
-					'post_status'    => 'any',
-					'post_type'      => 'attachment',
-					'posts_per_page' => 10,
-				);
+      if ( false !== $cleanup_in_progress ) {
 
-			} else {
+        $cleanup_in_progress = absint( $cleanup_in_progress );
 
-				$args = array(
-					'fields'         => 'ids',
-					'post_mime_type' => 'image',
-					'post_status'    => 'any',
-					'post_type'      => 'attachment',
-					'post__in'       => array( absint( $__attachment_id ) ),
-				);
+      }
 
-			}
+      ?>
 
-			$query = new WP_Query( $args );
+      <div class="wrap">
+        <h1><?php _e( 'Remove image sizes', 'optimize-images-resizing' ); ?></h1>
+        <p>
+          <label>
+            <input type="checkbox" id="oir-keep-the-log" value="1">
+            <?php _e( 'Keep a record of removed image sizes (not recommended for huge media libraries)' ); ?>
+          </label>
+        </p>
 
-			$found = absint( $query->found_posts );
-			$finished = empty( $query->posts ) ? true : false;
+        <div id="oir-buttons">
 
-			if ( ! $finished ) {
+          <?php if ( $cleanup_in_progress ) : ?>
 
-				$upload_dir = wp_upload_dir();
+            <button
+            id="oir-resume-remove-image-sizes"
+            class="button button-primary"
+            data-page="<?php echo esc_attr( $cleanup_in_progress ); ?>"
+            ><?php _e( 'Resume old cleanup', 'optimize-images-resizing' ); ?></button>
 
-				foreach ( $query->posts as $attachment_id ) {
+          <?php endif; ?>
 
-					$meta = wp_get_attachment_metadata( $attachment_id );
+          <button id="oir-remove-image-sizes" class="button"><?php _e( 'Start new cleanup', 'optimize-images-resizing' ); ?></button>
 
-					if ( empty( $meta['file'] ) ) {
+        </div>
+        <p id="oir-status-message"></p>
+        <p class="description"><?php _e( 'Click the button above to remove redundant image sizes. You only need to do this once.', 'optimize-images-resizing' ); ?></p>
+        <div id="oir-log"></div>
+      </div>
 
-						continue;
+      <?php
 
-					}
+    }
 
-					$file_path = str_replace( basename( $meta['file'] ), '', trailingslashit( $upload_dir['basedir'] ) . $meta['file'] );
+    // cleans up extra image sizes when called via ajax
+    public function remove_image_sizes( $__attachment_id ) {
 
-					if ( empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
+      $paged = ! empty( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
+      $removed = ! empty( $_POST['removed'] ) ? absint( $_POST['removed'] ) : 0;
+      $record_log = ! empty( $_POST['record_log'] ) ? 'true' === $_POST['record_log'] : false;
+      $removed_in_current_request = array();
 
-						continue;
+      update_option( 'oir_cleanup_progress_page', $paged );
 
-					}
+      if ( ! $__attachment_id ) {
 
-					// Don't remove images if they are used in default image sizes
-					// (happens when custom image size matches the dimensions of the default ones)
-					$do_not_delete = array();
+        check_ajax_referer( 'oir-nonce', 'nonce' );
 
-					$allowed_sizes = apply_filters( 'image_size_names_choose', array() );
+        $args = array(
+          'fields'         => 'ids',
+          'paged'          => $paged,
+          'post_mime_type' => 'image',
+          'post_status'    => 'any',
+          'post_type'      => 'attachment',
+          'posts_per_page' => 10,
+        );
 
-					$allowed_sizes = array_merge( array_keys( $allowed_sizes ), array( 'thumbnail', 'medium', 'large' ) );
+      } else {
 
-					foreach ( $meta['sizes'] as $size => $params ) {
+        $args = array(
+          'fields'         => 'ids',
+          'post_mime_type' => 'image',
+          'post_status'    => 'any',
+          'post_type'      => 'attachment',
+          'post__in'       => array( absint( $__attachment_id ) ),
+        );
 
-						$file = realpath( $file_path . $params['file'] );
+      }
 
-						// we don't want to delete thumbnails, they are used in admin area
-						if ( in_array( $size, $allowed_sizes ) ) {
+      $query = new WP_Query( $args );
 
-							$do_not_delete[] = $file;
+      $found = absint( $query->found_posts );
+      $finished = empty( $query->posts ) ? true : false;
 
-							continue;
+      if ( ! $finished ) {
 
-						}
+        $upload_dir = wp_upload_dir();
 
-						if ( ! in_array( $file, $do_not_delete ) && is_readable( $file ) ) {
+        foreach ( $query->posts as $attachment_id ) {
 
-							unlink( $file );
+          $meta = wp_get_attachment_metadata( $attachment_id );
 
-							unset( $meta['sizes'][ $size ] );
+          if ( empty( $meta['file'] ) ) {
 
-							$removed++;
-							$removed_log[] = $file;
+            continue;
 
-						}
+          }
 
-					}
+          $file_path = str_replace( basename( $meta['file'] ), '', trailingslashit( $upload_dir['basedir'] ) . $meta['file'] );
 
-					wp_update_attachment_metadata( $attachment_id, $meta );
+          if ( empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
 
-				}
+            continue;
 
-			}
+          }
 
-			if ( ! $__attachment_id ) {
+          // Don't remove images if they are used in default image sizes
+          // (happens when custom image size matches the dimensions of the default ones)
+          $do_not_delete = array();
 
-				$response = array(
-					'finished'    => $finished,
-					'found'       => $found,
-					'paged'       => $paged,
-					'removed'     => $removed,
-					'removed_log' => $removed_log,
-					'success'     => true,
-				);
+          $ignored_sizes = $this->get_ignored_image_sizes();
 
-				wp_send_json( $response );
+          foreach ( $meta['sizes'] as $size => $params ) {
 
-			}
+            $file = realpath( $file_path . $params['file'] );
 
-		}
+            // we don't want to delete thumbnails, they are used in admin area
+            if ( in_array( $size, $ignored_sizes ) ) {
 
-		// add js and css needed on media settings screen
-		public function enqueue_assets( $hook ) {
+              $do_not_delete[] = $file;
 
-			if ( 'options-media.php' !== $hook ) {
+              continue;
 
-				// we only need this script in media settings
-				return;
+            }
 
-			}
+            if ( ! in_array( $file, $do_not_delete ) && is_readable( $file ) ) {
 
-			wp_enqueue_script( 'oir_remove_image_sizes', OIR_JS_URL . 'remove-image-sizes.js' );
+              unlink( $file );
 
-			$localize = array(
-				'l10n'  => array(
-					'something_wrong'  => __( 'Something went wrong, please try again or contact the developer!', 'optimize-images-resizing' ),
-					'process_finished' => __( 'Cleanup was successfully completed. Number of images removed: %d.', 'optimize-images-resizing' ),
-					'nothing_to_remove' => __( 'There was nothing to clean up, looks like you have no redundant image sizes. Good job!', 'optimize-images-resizing' ),
-					'cleanup_progress' => __( 'Cleanup in progress, leave this page open!', 'optimize-images-resizing' ),
-				),
-				'nonce' => wp_create_nonce( 'oir-nonce' ),
-			);
+              unset( $meta['sizes'][ $size ] );
 
-			wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
+              $removed++;
 
-			wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
+              $removed_in_current_request[] = $file;
 
-		}
+            }
 
-	}
+          }
+
+          wp_update_attachment_metadata( $attachment_id, $meta );
+
+        }
+
+        if ( $record_log ) {
+
+          $removed_so_far = get_option( 'oir_removed_log', array() );
+
+          $removed_log = array_merge( $removed_so_far, $removed_in_current_request );
+
+          update_option( 'oir_removed_log', $removed_log );
+
+        }
+
+      } else {
+
+        delete_option( 'oir_cleanup_progress_page' );
+
+      }
+
+      if ( ! $__attachment_id ) {
+
+        $response = array(
+          'finished' => $finished,
+          'found' => $found,
+          'paged' => $paged,
+          'removed' => $removed,
+          'success' => true,
+        );
+
+        if ( $record_log && $finished ) {
+
+          $removed_so_far = get_option( 'oir_removed_log', array() );
+
+          $response['removed_log'] = $removed_so_far;
+
+        }
+
+        wp_send_json( $response );
+
+      }
+
+    }
+
+    // add js and css needed on media settings screen
+    public function enqueue_assets( $hook ) {
+
+      if ( 'tools_page_optimize-images-resizing' !== $hook ) {
+
+        // we only need this script in media settings
+        return;
+
+      }
+
+      wp_enqueue_script( 'oir_remove_image_sizes', OIR_JS_URL . 'remove-image-sizes.js' );
+
+      $localize = array(
+        'l10n'  => array(
+          'something_wrong'  => __( 'Something went wrong, please try again or contact the developer!', 'optimize-images-resizing' ),
+          'process_finished' => __( 'Cleanup was successfully completed. Number of images removed: %d.', 'optimize-images-resizing' ),
+          'nothing_to_remove' => __( 'There was nothing to clean up, looks like you have no redundant image sizes. Good job!', 'optimize-images-resizing' ),
+          'cleanup_progress' => __( 'Cleanup in progress, leave this page open!', 'optimize-images-resizing' ),
+        ),
+        'nonce' => wp_create_nonce( 'oir-nonce' ),
+      );
+
+      wp_localize_script( 'oir_remove_image_sizes', 'oir_plugin', $localize );
+
+      wp_enqueue_style( 'oir_remove_image_sizes', OIR_CSS_URL . 'remove-image-sizes.css' );
+
+    }
+
+  }
 
 endif;
 
@@ -216,6 +290,6 @@ OIR_Remove_Image_Sizes::instantiate();
  */
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
-	require_once 'inc/class-cli-command.php';
+  require_once 'inc/class-cli-command.php';
 
 }
