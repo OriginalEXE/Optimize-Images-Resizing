@@ -1,0 +1,76 @@
+# Copyright (C) 2016 Optimize Images Resizing
+# This file is distributed under the same license as the Optimize Images Resizing package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Optimize Images Resizing 1.4.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/optimize-images-"
+"resizing\n"
+"POT-Creation-Date: 2016-12-17 02:01:28+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: inc/class-remove-image-sizes.php:60 inc/class-remove-image-sizes.php:61
+#: inc/class-remove-image-sizes.php:83 optimize-images-resizing.php:98
+msgid "Remove image sizes"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:87
+msgid ""
+"Keep a record of removed image sizes (not recommended for huge media "
+"libraries)"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:99
+msgid "Resume old cleanup"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:103
+msgid "Start new cleanup"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:107
+msgid ""
+"Click the button above to remove redundant image sizes. You only need to do "
+"this once."
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:268
+msgid "Something went wrong, please try again or contact the developer!"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:269
+msgid "Cleanup was successfully completed. Number of images removed: %d."
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:270
+msgid ""
+"There was nothing to clean up, looks like you have no redundant image sizes. "
+"Good job!"
+msgstr ""
+
+#: inc/class-remove-image-sizes.php:271
+msgid "Cleanup in progress, leave this page open!"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Optimize Images Resizing"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (Optimize Images Resizing 1.4.0)  #-#-#-#-#
+#. Plugin URI of the plugin/theme
+#. #-#-#-#-#  plugin.pot (Optimize Images Resizing 1.4.0)  #-#-#-#-#
+#. Author URI of the plugin/theme
+msgid "https://twitter.com/Original_EXE"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Improve WordPress image sizes generation and save your hosting space"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "OriginalEXE"
+msgstr ""
