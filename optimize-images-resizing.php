@@ -8,7 +8,7 @@
  * Author URI: https://twitter.com/Original_EXE
  * Text Domain: optimize-images-resizing
  * Domain Path: /languages
- * Version: 1.4.0
+ * Version: 1.4.1
  */
 
 // Exit if accessed directly
@@ -51,7 +51,7 @@ if ( ! class_exists( 'OIR_Init' ) ) :
 
       // Plugin version
       if ( ! defined( 'OIR_VERSION' ) )
-        define( 'OIR_VERSION', '1.4.0' );
+        define( 'OIR_VERSION', '1.4.1' );
 
       // Plugin Folder Path
       if ( ! defined( 'OIR_PLUGIN_DIR' ) )

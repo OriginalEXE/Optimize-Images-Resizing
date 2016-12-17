@@ -26,7 +26,7 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
     public function __construct() {
 
-      add_filter( 'image_downsize', array( self::$instance, 'image_downsize' ), 10, 3 );
+      add_filter( 'image_downsize', array( $this, 'image_downsize' ), 10, 3 );
 
     }
 

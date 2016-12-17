@@ -3,7 +3,7 @@ Contributors: OriginalEXE
 Tags: images, media, resizing, optimize, cleanup, remove, empty, clean, resize, image
 Requires at least: 3.8
 Tested up to: 4.7
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -67,9 +67,12 @@ Not that I know of. Your WordPress website will continue working as it did befor
 
 == Changelog ==
 
+= 1.4.1 =
+* Fix a 1.4.0 PHP bug.
+
 = 1.4.0 =
-* Move plugin to the Tools menu
-* Add support for resuming image sizes removing
+* Move plugin to the Tools menu.
+* Add support for resuming image sizes removing.
 * Declare WordPress 4.7 compatibility.
 
 = 1.3.0 =
