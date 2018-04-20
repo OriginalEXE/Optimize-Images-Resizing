@@ -39,7 +39,17 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
       $meta = wp_get_attachment_metadata( $id );
       $wanted_width = $wanted_height = 0;
 
-      if ( empty( $meta['file'] ) ) return false;
+      if ( empty( $meta['file'] ) ) {
+		
+        // Check if we can replace with a placeholder image
+        if ( defined('OIR_PLACEHOLDER_IMAGE_ID') ) {
+          $meta = wp_get_attachment_metadata( OIR_PLACEHOLDER_IMAGE_ID );
+          if ( empty( $meta['file'] ) ) return false;
+          $id = OIR_PLACEHOLDER_IMAGE_ID;
+        } else {
+          return false;	
+        }
+      }
 
       // get $size dimensions
       global $_wp_additional_image_sizes;
@@ -69,7 +79,10 @@ if ( ! class_exists( 'OIR_Resize_Image' ) ) :
 
       }
 
-      if ( $intermediate = image_get_intermediate_size( $id, $size ) ) {
+      $intermediate = image_get_intermediate_size( $id, $size );
+	    
+      // check if the image size was changed and needs to regenerate
+	    if ( $intermediate && ( $intermediate['width'] == $wanted_width && $intermediate['height'] ==  $wanted_height ) ) {
 
         $img_url = wp_get_attachment_url( $id );
         $img_url_basename = wp_basename( $img_url );
